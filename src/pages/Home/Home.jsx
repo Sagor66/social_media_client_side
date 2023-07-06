@@ -1,7 +1,7 @@
 const Home = () => {
   return (
     <div>
-      <h2>hello from home</h2>
+      <h2> from home</h2>
     </div>
   );
 };
