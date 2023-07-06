@@ -5,10 +5,10 @@ const NavBar = () => {
   const navOptions = (
     <>
       <li>
-        <Link className="font-bold hover:text-blue-500 text-xl">News Feed</Link>
+        <Link className="font-bold hover:text-sky-500 text-xl">News Feed</Link>
       </li>
       <li>
-        <Link className="font-bold hover:text-blue-500 text-xl">Timeline</Link>
+        <Link className="font-bold hover:text-sky-500 text-xl">Timeline</Link>
       </li>
     </>
   );
@@ -42,7 +42,7 @@ const NavBar = () => {
             </ul>
           </div>
           <a className="btn btn-ghost normal-case text-3xl font-bold">
-            <span className="text-blue-500">Broke</span>Media
+            <span className="text-sky-500">Broke</span>Media
           </a>
         </div>
         <div className="navbar-center hidden lg:flex">
