@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 const useGetData = (url) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +21,7 @@ const useGetData = (url) => {
     fetchData();
   }, [url]);
 
-  return { data, loading, error };
+  return { data, loading, error, setData };
 };
 
 export default useGetData;
