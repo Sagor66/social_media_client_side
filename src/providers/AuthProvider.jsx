@@ -21,8 +21,28 @@ const AuthProvider = ({ children }) => {
       });
   };
 
+  const loggedUser = (data) => {
+    setLoading(true)
+    console.log(data)
+    axios
+      .post(`${import.meta.env.VITE_BASE_URL}/login`, data)
+      .then((res) => {
+        // console.log(response);
+        setUser(res.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  const logoutUser = () => {
+    setUser(null)
+  }
+
   const authInfo = {
     createUser,
+    loggedUser,
+    logoutUser,
     user,
   };
 

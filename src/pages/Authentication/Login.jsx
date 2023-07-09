@@ -1,6 +1,8 @@
 import axios from "axios";
+import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../providers/AuthProvider";
 
 const Login = () => {
   const {
@@ -10,14 +12,16 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
+  const { loggedUser, user } = useContext(AuthContext);
+
   const onSubmit = (data) => {
     console.log(data);
 
-    axios
-      .post(`${import.meta.env.VITE_BASE_URL}/login`, data)
-      .then((res) => console.log(res.data))
-      .catch((error) => console.log(error));
+    const response = loggedUser(data)
+    console.log(response)
   };
+
+  console.log(user);
 
   return (
     <div>

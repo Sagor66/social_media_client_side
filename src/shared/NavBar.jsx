@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../providers/AuthProvider";
 
 const NavBar = () => {
   const navOptions = (
@@ -12,6 +13,14 @@ const NavBar = () => {
       </li>
     </>
   );
+
+  const { user, logoutUser } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    logoutUser();
+  };
+
+  console.log(user);
 
   return (
     <div>
@@ -52,9 +61,17 @@ const NavBar = () => {
           <Link to="/sign-up">
             <button className="btn-primary">SignUp</button>
           </Link>
-          <Link to="/login">
-            <button className="btn-secondary">Login</button>
-          </Link>
+          {user ? (
+            <Link to="/login">
+              <button className="btn-secondary">Logout</button>
+            </Link>
+          ) : (
+            <Link to="/login">
+              <button onClick={handleLogout} className="btn-secondary">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </div>
