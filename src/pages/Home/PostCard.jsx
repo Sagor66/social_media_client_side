@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { BsFillHandThumbsUpFill, BsHandThumbsUp } from "react-icons/bs";
+import { BiCommentDetail, BiSolidCommentDetail } from "react-icons/bi";
 
 const PostCard = ({ post, userData }) => {
   const [user, setUser] = useState([]);
   const [dateTime, setDateTime] = useState("");
   const [like, setLike] = useState(false);
+  const [comment, setComment] = useState(false);
 
   useEffect(() => {
-    const postUser = userData.find((user) => post.user_id === user.id);
-    setUser(postUser);
+    if (Array.isArray(userData)) {
+      const postUser = userData.find((user) => post.user_id === user.id);
+      setUser(postUser);
+    } else {
+      setUser(userData);
+    }
   }, [post, userData]);
 
   useEffect(() => {
@@ -27,6 +33,10 @@ const PostCard = ({ post, userData }) => {
 
   const handleLike = () => {
     setLike(!like);
+  };
+
+  const handleComment = () => {
+    setComment(!comment);
   };
 
   return (
@@ -48,17 +58,42 @@ const PostCard = ({ post, userData }) => {
             </div>
             <p className="text-xl py-10 px-10">{post.description}</p>
           </div>
-          <div className="bg-white px-10 rounded-b-2xl">
+          <div className="bg-white px-10 rounded-b-2xl flex items-center gap-16">
             <button
               onClick={handleLike}
-              className="text-4xl text-blue-500 py-5"
+              className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2 w-[135px]"
             >
               {like ? (
-                <BsFillHandThumbsUpFill></BsFillHandThumbsUpFill>
+                <>
+                  <span className="font-bold">Liked</span>
+                  <BsFillHandThumbsUpFill></BsFillHandThumbsUpFill>
+                </>
               ) : (
-                <BsHandThumbsUp></BsHandThumbsUp>
+                <>
+                  <span className="font-bold">Like</span>
+                  <BsHandThumbsUp></BsHandThumbsUp>
+                </>
               )}
             </button>
+            <button
+              onClick={handleComment}
+              className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2"
+            >
+              {" "}
+              <span className="font-bold">Comment</span>
+              {!comment ? (
+                <BiCommentDetail></BiCommentDetail>
+              ) : (
+                <BiSolidCommentDetail></BiSolidCommentDetail>
+              )}
+            </button>
+            <div>
+              {comment && (
+                <div>
+                  <h2>SSS</h2>
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}

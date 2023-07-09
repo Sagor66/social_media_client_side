@@ -6,6 +6,7 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false)
 
   const createUser = (data) => {
     setLoading(true);
@@ -15,6 +16,7 @@ const AuthProvider = ({ children }) => {
       .then((res) => {
         // console.log(response);
         setUser(res.data)
+        localStorage.setItem("user", JSON.stringify(data))
       })
       .catch((error) => {
         console.log(error);
@@ -29,6 +31,7 @@ const AuthProvider = ({ children }) => {
       .then((res) => {
         // console.log(response);
         setUser(res.data)
+        localStorage.setItem("user", JSON.stringify(res.data))
       })
       .catch((error) => {
         console.log(error);
@@ -37,6 +40,7 @@ const AuthProvider = ({ children }) => {
 
   const logoutUser = () => {
     setUser(null)
+    localStorage.removeItem('user')
   }
 
   const authInfo = {
@@ -44,6 +48,7 @@ const AuthProvider = ({ children }) => {
     loggedUser,
     logoutUser,
     user,
+    setUser,
   };
 
   return (

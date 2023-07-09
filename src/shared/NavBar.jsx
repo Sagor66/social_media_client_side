@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../providers/AuthProvider";
 
@@ -6,19 +6,25 @@ const NavBar = () => {
   const navOptions = (
     <>
       <li>
-        <Link className="font-bold hover:text-sky-500 text-xl">News Feed</Link>
+        <Link to="/" className="font-bold hover:text-sky-500 text-xl">News Feed</Link>
       </li>
       <li>
-        <Link className="font-bold hover:text-sky-500 text-xl">Timeline</Link>
+        <Link to="/timeline" className="font-bold hover:text-sky-500 text-xl">Timeline</Link>
       </li>
     </>
   );
 
-  const { user, logoutUser } = useContext(AuthContext);
+  const { user, setUser, logoutUser } = useContext(AuthContext);
 
   const handleLogout = () => {
     logoutUser();
   };
+
+  useEffect(() => {
+    if (user === null) {
+      setUser(JSON.parse(localStorage.getItem("user")));
+    }
+  }, []);
 
   console.log(user);
 
@@ -62,14 +68,12 @@ const NavBar = () => {
             <button className="btn-primary">SignUp</button>
           </Link>
           {user ? (
-            <Link to="/login">
-              <button className="btn-secondary">Logout</button>
-            </Link>
+            <button onClick={handleLogout} className="btn-secondary">
+              Logout
+            </button>
           ) : (
             <Link to="/login">
-              <button onClick={handleLogout} className="btn-secondary">
-                Login
-              </button>
+              <button className="btn-secondary">Login</button>
             </Link>
           )}
         </div>
