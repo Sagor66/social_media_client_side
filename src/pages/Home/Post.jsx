@@ -55,7 +55,7 @@ const Post = () => {
 
   return (
     <div>
-      <PostForm  handleFormData={handleFormData}></PostForm>
+      <PostForm formAction={'Post'} handleFormData={handleFormData}></PostForm>
       <div className="my-32">
         <h2 className="text-center text-5xl text-sky-500 font-bold bg-gradient-to-l from-sky-200 to-gray-50 px-20 py-5 w-fit mx-auto mb-10">
           News Feed

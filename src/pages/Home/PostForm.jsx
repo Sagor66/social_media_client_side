@@ -3,39 +3,7 @@ import useGetData from "../../hooks/useGetData";
 import { AuthContext } from "../../providers/AuthProvider";
 import axios from "axios";
 
-const PostForm = ({ handleFormData }) => {
-//   let {
-//     data: postData,
-//     loading: postLoading,
-//     error: postError,
-//     setData: postSetData,
-//   } = useGetData(`${import.meta.env.VITE_BASE_URL}/posts`);
-
-
-//   const [postData, setPostData] = useState([])
-
-//   useEffect(() => {
-//     axios.get(`${import.meta.env.VITE_BASE_URL}/posts`)
-//     .then(res => setPostData(res.data))
-//     .catch(error => console.log(error.message))
-//   }, [])
-
-//   const handleFormData = (event) => {
-//     event.preventDefault();
-//     const form = event.target;
-//     const textBox = form.textBox.value;
-
-//     const data = { user_id: user.id, description: textBox };
-
-//     axios
-//       .post(`${import.meta.env.VITE_BASE_URL}/posts`, data)
-//       .then((res) => {
-//         // postSetData([...postData, data]);
-//         setPostData(...postData, res.data)
-//         console.log(res);
-//       })
-//       .catch((error) => console.log(error.message));
-//   };
+const PostForm = ({ formAction, handleFormData }) => {
 
   return (
     <form onSubmit={handleFormData}>
@@ -55,7 +23,7 @@ const PostForm = ({ handleFormData }) => {
           /> */}
       </div>
       <div className="form-control my-8">
-        <input className="btn-primary" type="submit" value="Post" />
+        <input className="btn-primary" type="submit" value={`${formAction}`} />
       </div>
     </form>
   );
