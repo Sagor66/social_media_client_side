@@ -1,13 +1,21 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BsFillHandThumbsUpFill, BsHandThumbsUp } from "react-icons/bs";
-import { BiCommentDetail, BiSolidCommentDetail } from "react-icons/bi";
+import { BiCommentDetail, BiEdit, BiSolidCommentDetail } from "react-icons/bi";
+import { AiOutlineDelete } from "react-icons/ai";
 import PostForm from "./PostForm";
+import axios from "axios";
+import { AuthContext } from "../../providers/AuthProvider";
+import CommentCard from "./CommentCard";
 
-const PostCard = ({ post, userData }) => {
+const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
+  const { user: loggedUser } = useContext(AuthContext);
+  const [postData, setPostData] = useState([]);
   const [user, setUser] = useState([]);
   const [dateTime, setDateTime] = useState("");
-  const [like, setLike] = useState(false);
   const [comment, setComment] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   useEffect(() => {
     if (Array.isArray(userData)) {
@@ -32,16 +40,73 @@ const PostCard = ({ post, userData }) => {
     setDateTime(formattedDate);
   }, [post]);
 
-  const handleLike = () => {
-    setLike(!like);
-  };
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/posts`)
+      .then((res) => {
+        setPostData(res.data);
+        setUpdated(false);
+      })
+      .catch((error) => console.log(error.message));
+  }, [updated]);
+
+  // const handleLike = () => {
+  //   setLike(!like);
+  // };
+
+  // console.log({ comments: post.comments })
+  // console.log({ comments: post.comments })
 
   const handleComment = () => {
     setComment(!comment);
   };
 
+  const handleMouseEnter = () => {
+    if (loggedUser) {
+      if (loggedUser.id == post.user_id) {
+        setIsHovered(true);
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  const handleEdit = () => {
+    setEdit(!edit);
+  };
+
+  const handleFromData = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const textBox = form.textBox.value;
+
+    const data = { user_id: user?.id, description: textBox };
+
+    if (user) {
+      axios
+        .patch(`${import.meta.env.VITE_BASE_URL}/posts/${post.id}`, data)
+        .then((res) => {
+          // postSetData([...postData, data]);
+          const remainingData = postData.filter((data) => post.id !== data.id);
+          const updatedData = [res.data, ...remainingData];
+          console.log({ response: res.data });
+          setPostData(updatedData);
+          setUpdated(true);
+        })
+        .catch((error) => console.log(error.message));
+    } else {
+      toast.error("Please Login To Post");
+    }
+  };
+
   return (
-    <div className="mb-16 pt-10 bg-gradient-to-tr from-sky-100 to-white rounded-xl shadow-xl">
+    <div
+      className="mb-16 pt-10 bg-gradient-to-tr from-sky-100 to-white rounded-xl shadow-xl relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {post && user && (
         <>
           <div>
@@ -59,10 +124,17 @@ const PostCard = ({ post, userData }) => {
             </div>
             <p className="text-xl py-10 px-10">{post.description}</p>
           </div>
+          {edit && (
+            <PostForm
+              formAction={"Update Post"}
+              handleFormData={handleFromData}
+              defaultValue={post.description}
+            ></PostForm>
+          )}
           <div className="bg-white px-10 rounded-b-2xl">
             <div className="flex items-center gap-16">
               <button
-                onClick={handleLike}
+                onClick={() => handleLike(post.id)}
                 className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2 w-[135px]"
               >
                 {like ? (
@@ -93,9 +165,27 @@ const PostCard = ({ post, userData }) => {
             <div>
               {comment && (
                 <div className="py-10">
-                  <PostForm formAction={'Submit Comment'}></PostForm>
+                  <PostForm formAction={"Submit Comment"}></PostForm>
                 </div>
               )}
+            </div>
+            <div>
+              <CommentCard
+                postId={post.id}
+                postComments={post.comments}
+              ></CommentCard>
+            </div>
+            <div
+              className={`bg-white text-4xl text-sky-500 py-3 px-10 rounded-xl absolute top-2 left-1/2 shadow-xl ${
+                isHovered ? "" : "hidden"
+              }`}
+            >
+              <button onClick={handleEdit} className="mr-10">
+                <BiEdit></BiEdit>
+              </button>
+              <button onClick={() => handleDelete(post.id)}>
+                <AiOutlineDelete></AiOutlineDelete>
+              </button>
             </div>
           </div>
         </>
