@@ -23,31 +23,27 @@ const Post = () => {
   const [postData, setPostData] = useState([]);
   const [posted, setPosted] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [reactions, setReactions] = useState([]);
   const [like, setLike] = useState(false);
   const [reactionId, setReactionId] = useState(0);
   const { user } = useContext(AuthContext);
-  
-  // GET all posts 
+
+  // GET all posts
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_BASE_URL}/posts`)
+      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`)
       .then((res) => {
         setPostData(res.data);
-        // console.log({data:res.data})
-        // console.log({comments: res.data.comments})
         setPosted(false);
         setDeleted(false);
       })
       .catch((error) => console.log(error.message));
   }, [posted, deleted]);
-  
 
   // GET all reactions
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_BASE_URL}/reactions`);
   }, []);
-
-  // console.log(postData);
 
   // Handling form submission for posting
   const handleFormData = (event) => {
@@ -89,23 +85,42 @@ const Post = () => {
   // Like a post
   const handleLike = (id) => {
     const data = { user_id: user?.id, post_id: id, reaction: "like" };
-    // console.log(data);
 
     if (user) {
       axios
         .post(`${import.meta.env.VITE_BASE_URL}/reactions`, data)
         .then((res) => {
-          setReactionId(res.data.id);
+          // console.log({ postData })
+          console.log({ response: res.data });
+          const manipulatedData = postData.find(data => data.id === id)
+          const mainData = postData.filter(data => data.id !== id)
+          // console.log({ manipulatedData })
+          // console.log({ mainData })
+          // setPostData([...mainData, manipulatedData])
           if (res.data.reaction === "like") {
-            setLike(!like);
+            toast.success('Liked')
+            
+            // setLike(!like);
+          } else {
+            toast.success('Unliked')
           }
-          console.log(res.data);
-        })
-        .then((error) => console.log(error));
+        });
     } else {
-      toast.error("Login First")
+      toast.error("Login First");
     }
   };
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/reactions`)
+      .then((res) => {
+        setReactions(res.data);
+        console.log({ reactions: res.data });
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  }, []);
 
   return (
     <div>

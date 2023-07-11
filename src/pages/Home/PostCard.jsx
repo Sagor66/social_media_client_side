@@ -6,6 +6,7 @@ import PostForm from "./PostForm";
 import axios from "axios";
 import { AuthContext } from "../../providers/AuthProvider";
 import CommentCard from "./CommentCard";
+import Like from "../../component/Like";
 
 const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
   const { user: loggedUser } = useContext(AuthContext);
@@ -42,7 +43,7 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_BASE_URL}/posts`)
+      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${loggedUser.id}`)
       .then((res) => {
         setPostData(res.data);
         setUpdated(false);
@@ -101,6 +102,32 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
     }
   };
 
+  const handleCommentFormData = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const textBox = form.textBox.value;
+
+    const data = {
+      user_id: loggedUser?.id,
+      post_id: post?.id,
+      description: textBox,
+    };
+
+    if (user) {
+      axios
+        .post(`${import.meta.env.VITE_BASE_URL}/comments`, data)
+        .then((res) => {
+          const updatedData = [...post.comments, res.data];
+          post.comments = updatedData;
+          const remaining = postData.filter((data) => post.id !== data.id);
+          setPostData(...remaining, post);
+        })
+        .catch((error) => console.log(error.message));
+    } else {
+      toast.error("Please Login To Comment");
+    }
+  };
+
   return (
     <div
       className="mb-16 pt-10 bg-gradient-to-tr from-sky-100 to-white rounded-xl shadow-xl relative"
@@ -132,45 +159,53 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
             ></PostForm>
           )}
           <div className="bg-white px-10 rounded-b-2xl">
-            <div className="flex items-center gap-16">
-              <button
-                onClick={() => handleLike(post.id)}
-                className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2 w-[135px]"
-              >
-                {like ? (
-                  <>
-                    <span className="font-bold">Liked</span>
-                    <BsFillHandThumbsUpFill></BsFillHandThumbsUpFill>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-bold">Like</span>
-                    <BsHandThumbsUp></BsHandThumbsUp>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleComment}
-                className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2"
-              >
-                {" "}
-                <span className="font-bold">Comment</span>
-                {!comment ? (
-                  <BiCommentDetail></BiCommentDetail>
-                ) : (
-                  <BiSolidCommentDetail></BiSolidCommentDetail>
-                )}
-              </button>
+            <div className="flex justify-between items-end">
+              <div className="flex items-center gap-16">
+                {/* <Like handleLike={handleLike} post={post} like={like}></Like> */}
+                <button
+                  onClick={() => handleLike(post.id)}
+                  className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2 w-[135px]"
+                >
+                  {like ? (
+                    <>
+                      <span className="font-bold">Liked</span>
+                      <BsFillHandThumbsUpFill></BsFillHandThumbsUpFill>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-bold">Like</span>
+                      <BsHandThumbsUp></BsHandThumbsUp>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleComment}
+                  className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2"
+                >
+                  {" "}
+                  <span className="font-bold">Comment</span>
+                  {!comment ? (
+                    <BiCommentDetail></BiCommentDetail>
+                  ) : (
+                    <BiSolidCommentDetail></BiSolidCommentDetail>
+                  )}
+                </button>
+              </div>
+              <p className="text-sky-500">Total Comments: {post.number_of_comments}</p>
             </div>
             <div>
               {comment && (
                 <div className="py-10">
-                  <PostForm formAction={"Submit Comment"}></PostForm>
+                  <PostForm
+                    formAction={"Submit Comment"}
+                    handleFormData={handleCommentFormData}
+                  ></PostForm>
                 </div>
               )}
             </div>
             <div>
               <CommentCard
+                post={post}
                 postId={post.id}
                 postComments={post.comments}
               ></CommentCard>

@@ -12,7 +12,7 @@ const Timeline = () => {
     loading: postLoading,
     error: postError,
     setData: postSetData,
-  } = useGetData(`${import.meta.env.VITE_BASE_URL}/posts`);
+  } = useGetData(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`);
 
   useEffect(() => {
     const data = postData.filter((post) => user.id === post.user_id);
