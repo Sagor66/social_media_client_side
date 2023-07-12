@@ -26,19 +26,45 @@ const Post = () => {
   const [reactions, setReactions] = useState([]);
   const [like, setLike] = useState(false);
   const [reactionId, setReactionId] = useState(0);
-  const { user } = useContext(AuthContext);
+  let { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!user) {
+      user = {
+        id: 1,
+        name: "Fardin",
+        email: "fardin@gmail.com",
+        password: "fardin123",
+      };
+    }
+  }, [user]);
 
   // GET all posts
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`)
-      .then((res) => {
-        setPostData(res.data);
-        setPosted(false);
-        setDeleted(false);
-      })
-      .catch((error) => console.log(error.message));
+    if (user?.id) {
+      axios
+        .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`)
+        .then((res) => {
+          setPostData(res.data);
+          console.log({ responseProductData: res.data, user });
+          setPosted(false);
+          setDeleted(false);
+        })
+        .catch((error) => console.log(error.message));
+    }
   }, [posted, deleted]);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`);
+  //     setPostData(response.data);
+  //     setDeleted(false);
+  //   };
+
+  //   fetchData();
+  // }, [posted, deleted]);
+
+  console.log({ postData, user });
 
   // GET all reactions
   useEffect(() => {
@@ -83,44 +109,27 @@ const Post = () => {
   };
 
   // Like a post
-  const handleLike = (id) => {
-    const data = { user_id: user?.id, post_id: id, reaction: "like" };
+  const handleLike = (post) => {
+    const data = { user_id: user?.id, post_id: post.id, reaction: "like" };
 
     if (user) {
       axios
         .post(`${import.meta.env.VITE_BASE_URL}/reactions`, data)
         .then((res) => {
-          // console.log({ postData })
           console.log({ response: res.data });
-          const manipulatedData = postData.find(data => data.id === id)
-          const mainData = postData.filter(data => data.id !== id)
-          // console.log({ manipulatedData })
-          // console.log({ mainData })
-          // setPostData([...mainData, manipulatedData])
+
           if (res.data.reaction === "like") {
-            toast.success('Liked')
-            
-            // setLike(!like);
+            toast.success("Liked");
+            post.like = 1;
           } else {
-            toast.success('Unliked')
+            toast.success("Unliked");
+            post.like = 0;
           }
         });
     } else {
       toast.error("Login First");
     }
   };
-
-  useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/reactions`)
-      .then((res) => {
-        setReactions(res.data);
-        console.log({ reactions: res.data });
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  }, []);
 
   return (
     <div>

@@ -6,7 +6,7 @@ import { AuthContext } from "../../providers/AuthProvider";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-const SingleComment = ({ comment, post }) => {
+const SingleComment = ({ comment, post, setReply, reply }) => {
   const {
     data: userData,
     loading: userLoading,
@@ -19,14 +19,15 @@ const SingleComment = ({ comment, post }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [modifiedPost, setModifiedPost] = useState(post);
 
-//   console.log({ modifiedPost });
+  const { postData, setPostData, restState, setResetState } =
+    useContext(AuthContext);
+
+  //   console.log({ modifiedPost });
 
   useEffect(() => {
     const user = userData.find((user) => user.id === comment.user_id);
     setUserComment(user);
   }, [userData]);
-
-
 
   const handleMouseEnter = () => {
     if (loggedUser) {
@@ -52,24 +53,25 @@ const SingleComment = ({ comment, post }) => {
           if (res.status == 200) {
             toast.success("Successfully Deleted!");
           }
-          const updatedPost = { ...post };
-          updatedPost.comments = updatedPost.comments.filter(
-            (comment) => comment.id !== id
-          );
 
-          console.log({updatedPost})
-          console.log({updatedPostComment: updatedPost.comments})
-          //   const remainigData = postData.filter((post) => post.id !== id);
-          //   setPostData([...remainigData]);
-          //   setDeleted(true);
+          post.comments = post.comments.filter(
+            (comment) => comment.id !== res.data.id
+          );
+          const newData = post;
+          const remainingData = postData.filter((data) => data.id !== post.id);
+          setPostData([...remainingData, newData]);
         })
         .catch((error) => console.log(error));
     }
   };
 
-
   const handleLike = () => {
-    const data = { user_id: loggedUser?.id, post_id: post.id, comment_id: comment.id, reaction: "like" };
+    const data = {
+      user_id: loggedUser?.id,
+      post_id: post.id,
+      comment_id: comment.id,
+      comment_reaction: "like",
+    };
 
     if (loggedUser) {
       axios
@@ -77,22 +79,26 @@ const SingleComment = ({ comment, post }) => {
         .then((res) => {
           // console.log({ postData })
           console.log({ response: res.data });
-        //   const manipulatedData = postData.find(data => data.id === id)
-        //   const mainData = postData.filter(data => data.id !== id)
+          //   const manipulatedData = postData.find(data => data.id === id)
+          //   const mainData = postData.filter(data => data.id !== id)
           // console.log({ manipulatedData })
           // console.log({ mainData })
           // setPostData([...mainData, manipulatedData])
-          if (res.data.reaction === "like") {
-            toast.success('Liked')
-            
+          if (res.data.comment_reaction === "like") {
+            toast.success("Liked");
+
             // setLike(!like);
           } else {
-            toast.success('Unliked')
+            toast.success("Unliked");
           }
         });
     } else {
       toast.error("Login First");
     }
+  };
+
+  const handleReply = () => {
+    setReply(!reply);
   };
 
   return (
@@ -109,9 +115,20 @@ const SingleComment = ({ comment, post }) => {
       </h5>
       <div className="text-sky-500 text-xl font-bold ml-10">
         <p className="text-lg text-black font-normal">{comment.description}</p>
-        <button onClick={handleLike} className="mr-8 mt-3 hover:underline">Like</button>
-        <button className="hover:underline">Reply</button>
+        <button onClick={handleLike} className="mr-8 mt-3 hover:underline">
+          Like
+        </button>
+        <button onClick={handleReply} className="hover:underline">
+          Reply
+        </button>
       </div>
+      {/* {editComment && (
+            <PostForm
+              formAction={"Update Post"}
+              handleFormData={handleFromData}
+              defaultValue={post.description}
+            ></PostForm>
+          )} */}
       <div
         className={`text-4xl text-sky-500 absolute top-2 right-2 ${
           isHovered ? "" : "hidden"

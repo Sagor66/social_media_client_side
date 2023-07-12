@@ -1,7 +1,3 @@
-import { useContext, useEffect, useState } from "react";
-import useGetData from "../../hooks/useGetData";
-import { AuthContext } from "../../providers/AuthProvider";
-import axios from "axios";
 
 const PostForm = ({ formAction, handleFormData, defaultValue }) => {
 

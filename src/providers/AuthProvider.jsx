@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const AuthContext = createContext(null);
 
@@ -7,6 +7,8 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false)
+  const [postData, setPostData] = useState([]);
+  const [restState, setResetState] = useState(false);
 
   const createUser = (data) => {
     setLoading(true);
@@ -43,12 +45,28 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem('user')
   }
 
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`)
+      .then((res) => {
+        setPostData(res.data);
+        setResetState(false)
+        // setPosted(false);
+        // setDeleted(false);
+      })
+      .catch((error) => console.log(error.message));
+  }, [restState]);
+
   const authInfo = {
     createUser,
     loggedUser,
     logoutUser,
     user,
     setUser,
+    postData, 
+    setPostData,
+    restState, 
+    setResetState,
   };
 
   return (

@@ -6,7 +6,6 @@ import PostForm from "./PostForm";
 import axios from "axios";
 import { AuthContext } from "../../providers/AuthProvider";
 import CommentCard from "./CommentCard";
-import Like from "../../component/Like";
 
 const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
   const { user: loggedUser } = useContext(AuthContext);
@@ -17,6 +16,8 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [edit, setEdit] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [userReaction, setUserReaction] = useState([])
+  
 
   useEffect(() => {
     if (Array.isArray(userData)) {
@@ -43,20 +44,13 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${loggedUser.id}`)
+      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${loggedUser?.id}`)
       .then((res) => {
         setPostData(res.data);
         setUpdated(false);
       })
       .catch((error) => console.log(error.message));
   }, [updated]);
-
-  // const handleLike = () => {
-  //   setLike(!like);
-  // };
-
-  // console.log({ comments: post.comments })
-  // console.log({ comments: post.comments })
 
   const handleComment = () => {
     setComment(!comment);
@@ -92,9 +86,10 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
           // postSetData([...postData, data]);
           const remainingData = postData.filter((data) => post.id !== data.id);
           const updatedData = [res.data, ...remainingData];
-          console.log({ response: res.data });
+          post.description = res.data.description
           setPostData(updatedData);
           setUpdated(true);
+          setEdit(!edit)
         })
         .catch((error) => console.log(error.message));
     } else {
@@ -120,7 +115,8 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
           const updatedData = [...post.comments, res.data];
           post.comments = updatedData;
           const remaining = postData.filter((data) => post.id !== data.id);
-          setPostData(...remaining, post);
+          setPostData([...remaining, post]);
+          setComment(!comment)
         })
         .catch((error) => console.log(error.message));
     } else {
@@ -149,7 +145,7 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
               </h4>
               <p className="text-sm">Posted on: {dateTime}</p>
             </div>
-            <p className="text-xl py-10 px-10">{post.description}</p>
+            <p className="text-xl py-10 px-10">{post.description}, {post.like}</p>
           </div>
           {edit && (
             <PostForm
@@ -161,12 +157,11 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
           <div className="bg-white px-10 rounded-b-2xl">
             <div className="flex justify-between items-end">
               <div className="flex items-center gap-16">
-                {/* <Like handleLike={handleLike} post={post} like={like}></Like> */}
                 <button
-                  onClick={() => handleLike(post.id)}
+                  onClick={() => handleLike(post)}
                   className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2 w-[135px]"
                 >
-                  {like ? (
+                  { post.like >= 1 ? (
                     <>
                       <span className="font-bold">Liked</span>
                       <BsFillHandThumbsUpFill></BsFillHandThumbsUpFill>
@@ -208,6 +203,8 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
                 post={post}
                 postId={post.id}
                 postComments={post.comments}
+                setReply={setComment}
+                reply={comment}
               ></CommentCard>
             </div>
             <div
