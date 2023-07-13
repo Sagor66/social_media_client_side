@@ -17,7 +17,7 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
 
   const [userComment, setUserComment] = useState([]);
   const [isHovered, setIsHovered] = useState(false);
-  const [modifiedPost, setModifiedPost] = useState(post);
+  const [commentData, setCommentData] = useState([])
 
   const { postData, setPostData, restState, setResetState } =
     useContext(AuthContext);
@@ -28,6 +28,14 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
     const user = userData.find((user) => user.id === comment.user_id);
     setUserComment(user);
   }, [userData]);
+
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_BASE_URL}/comments?user_id=${loggedUser.id}`,)
+    .then(res => {
+      const newData = res.data.find(data => data.id === comment.id)
+      setCommentData(newData)
+    })
+  }, [])
 
   const handleMouseEnter = () => {
     if (loggedUser) {
@@ -85,10 +93,12 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
           // console.log({ mainData })
           // setPostData([...mainData, manipulatedData])
           if (res.data.comment_reaction === "like") {
+            commentData.like = 1
             toast.success("Liked");
 
             // setLike(!like);
           } else {
+            commentData.like = 0
             toast.success("Unliked");
           }
         });
@@ -116,7 +126,7 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
       <div className="text-sky-500 text-xl font-bold ml-10">
         <p className="text-lg text-black font-normal">{comment.description}</p>
         <button onClick={handleLike} className="mr-8 mt-3 hover:underline">
-          Like
+          { commentData.like === 1 ? 'Liked' : 'Like' }
         </button>
         <button onClick={handleReply} className="hover:underline">
           Reply
