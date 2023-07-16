@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -59,7 +58,6 @@ const Login = () => {
               <div className="form-control my-8">
                 <input className="btn-primary" type="submit" value="Login" />
               </div>
-              {/* <p className="text-sm text-red-600 max-w-sm mb-2">{error}</p> */}
               <div className="label-text-alt">
                 <p className="inline-block mr-2">Don't have an account?</p>
                 <Link to="/sign-up" className="text-sky-500">

@@ -16,8 +16,6 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [edit, setEdit] = useState(false);
   const [updated, setUpdated] = useState(false);
-  const [userReaction, setUserReaction] = useState([])
-  
 
   useEffect(() => {
     if (Array.isArray(userData)) {
@@ -83,13 +81,12 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
       axios
         .patch(`${import.meta.env.VITE_BASE_URL}/posts/${post.id}`, data)
         .then((res) => {
-          // postSetData([...postData, data]);
           const remainingData = postData.filter((data) => post.id !== data.id);
           const updatedData = [res.data, ...remainingData];
-          post.description = res.data.description
+          post.description = res.data.description;
           setPostData(updatedData);
           setUpdated(true);
-          setEdit(!edit)
+          setEdit(!edit);
         })
         .catch((error) => console.log(error.message));
     } else {
@@ -116,7 +113,7 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
           post.comments = updatedData;
           const remaining = postData.filter((data) => post.id !== data.id);
           setPostData([...remaining, post]);
-          setComment(!comment)
+          setComment(!comment);
         })
         .catch((error) => console.log(error.message));
     } else {
@@ -145,7 +142,7 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
               </h4>
               <p className="text-sm">Posted on: {dateTime}</p>
             </div>
-            <p className="text-xl py-10 px-10">{post.description}, {post.like}</p>
+            <p className="text-xl py-10 px-10">{post.description}</p>
           </div>
           {edit && (
             <PostForm
@@ -159,15 +156,21 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
               <div className="flex items-center gap-16">
                 <button
                   onClick={() => handleLike(post)}
-                  className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2 w-[135px]"
+                  className="text-4xl text-sky-500 py-5 flex flex-row-reverse items-center gap-2"
                 >
-                  { post.like >= 1 ? (
+                  {post.like >= 1 ? (
                     <>
+                      <span className="bg-sky-100 p-4 rounded-full">
+                        {post.number_of_reactions}
+                      </span>
                       <span className="font-bold">Liked</span>
                       <BsFillHandThumbsUpFill></BsFillHandThumbsUpFill>
                     </>
                   ) : (
                     <>
+                      <span className="bg-sky-100 p-4 rounded-full">
+                        {post.number_of_reactions}
+                      </span>
                       <span className="font-bold">Like</span>
                       <BsHandThumbsUp></BsHandThumbsUp>
                     </>
@@ -186,7 +189,9 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
                   )}
                 </button>
               </div>
-              <p className="text-sky-500">Total Comments: {post.number_of_comments}</p>
+              <p className="text-sky-500">
+                Total Comments: {post.number_of_comments}
+              </p>
             </div>
             <div>
               {comment && (

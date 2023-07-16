@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import useGetData from "../../hooks/useGetData";
-import usePostData from "../../hooks/usePostData";
 import axios from "axios";
 import PostForm from "./PostForm";
 import { AuthContext } from "../../providers/AuthProvider";
@@ -23,21 +22,25 @@ const Post = () => {
   const [postData, setPostData] = useState([]);
   const [posted, setPosted] = useState(false);
   const [deleted, setDeleted] = useState(false);
-  const [reactions, setReactions] = useState([]);
   const [like, setLike] = useState(false);
-  const [reactionId, setReactionId] = useState(0);
   let { user } = useContext(AuthContext);
 
   useEffect(() => {
     if (!user) {
-      user = {
-        id: 1,
-        name: "Fardin",
-        email: "fardin@gmail.com",
-        password: "fardin123",
-      };
+      user = JSON.parse(localStorage.getItem("user"))
     }
-  }, [user]);
+  }, [])
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     user = {
+  //       id: 1,
+  //       name: "Fardin",
+  //       email: "fardin@gmail.com",
+  //       password: "fardin123",
+  //     };
+  //   }
+  // }, [user]);
 
   // GET all posts
   useEffect(() => {
@@ -52,7 +55,7 @@ const Post = () => {
         })
         .catch((error) => console.log(error.message));
     }
-  }, [posted, deleted]);
+  }, [posted, deleted, user?.id]);
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -65,11 +68,6 @@ const Post = () => {
   // }, [posted, deleted]);
 
   console.log({ postData, user });
-
-  // GET all reactions
-  useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/reactions`);
-  }, []);
 
   // Handling form submission for posting
   const handleFormData = (event) => {
@@ -121,10 +119,13 @@ const Post = () => {
           if (res.data.reaction === "like") {
             toast.success("Liked");
             post.like = 1;
+            post.number_of_reactions += 1
           } else {
             toast.success("Unliked");
             post.like = 0;
+            post.number_of_reactions -= 1
           }
+          console.log({post})
         });
     } else {
       toast.error("Login First");

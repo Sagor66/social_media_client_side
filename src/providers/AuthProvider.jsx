@@ -4,7 +4,7 @@ import { createContext, useEffect, useState } from "react";
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  let [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false)
   const [postData, setPostData] = useState([]);
@@ -46,6 +46,7 @@ const AuthProvider = ({ children }) => {
   }
 
   useEffect(() => {
+    user = JSON.parse(localStorage.getItem("user"))
     axios
       .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${user?.id}`)
       .then((res) => {

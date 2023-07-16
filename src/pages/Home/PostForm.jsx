@@ -12,12 +12,6 @@ const PostForm = ({ formAction, handleFormData, defaultValue }) => {
           defaultValue={defaultValue ? defaultValue : ""}
           required
         ></textarea>
-        {/* <input
-            type="text"
-            placeholder="name"
-            className="input input-bordered"
-            {...register("class_name", { required: true })}
-          /> */}
       </div>
       <div className="form-control my-8">
         <input className="btn-primary" type="submit" value={`${formAction}`} />

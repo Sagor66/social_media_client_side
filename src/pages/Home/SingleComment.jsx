@@ -22,15 +22,13 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
   const { postData, setPostData, restState, setResetState } =
     useContext(AuthContext);
 
-  //   console.log({ modifiedPost });
-
   useEffect(() => {
     const user = userData.find((user) => user.id === comment.user_id);
     setUserComment(user);
   }, [userData]);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/comments?user_id=${loggedUser.id}`,)
+    axios.get(`${import.meta.env.VITE_BASE_URL}/comments?user_id=${loggedUser?.id}`,)
     .then(res => {
       const newData = res.data.find(data => data.id === comment.id)
       setCommentData(newData)
@@ -85,20 +83,14 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
       axios
         .post(`${import.meta.env.VITE_BASE_URL}/comment_reactions`, data)
         .then((res) => {
-          // console.log({ postData })
           console.log({ response: res.data });
-          //   const manipulatedData = postData.find(data => data.id === id)
-          //   const mainData = postData.filter(data => data.id !== id)
-          // console.log({ manipulatedData })
-          // console.log({ mainData })
-          // setPostData([...mainData, manipulatedData])
           if (res.data.comment_reaction === "like") {
             commentData.like = 1
+            commentData.number_of_reactions += 1
             toast.success("Liked");
-
-            // setLike(!like);
           } else {
             commentData.like = 0
+            commentData.number_of_reactions -= 1
             toast.success("Unliked");
           }
         });
@@ -126,6 +118,7 @@ const SingleComment = ({ comment, post, setReply, reply }) => {
       <div className="text-sky-500 text-xl font-bold ml-10">
         <p className="text-lg text-black font-normal">{comment.description}</p>
         <button onClick={handleLike} className="mr-8 mt-3 hover:underline">
+          <span className="mr-2 bg-white px-3 py-1">{commentData.number_of_reactions}</span>
           { commentData.like === 1 ? 'Liked' : 'Like' }
         </button>
         <button onClick={handleReply} className="hover:underline">
