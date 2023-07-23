@@ -6,16 +6,28 @@ import PostForm from "./PostForm";
 import axios from "axios";
 import { AuthContext } from "../../providers/AuthProvider";
 import CommentCard from "./CommentCard";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPosts, updatePost } from "../../features/postSlice";
+import { createComment } from "../../features/commentSlice";
 
 const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
   const { user: loggedUser } = useContext(AuthContext);
-  const [postData, setPostData] = useState([]);
+  // const [postData, setPostData] = useState([]);
   const [user, setUser] = useState([]);
   const [dateTime, setDateTime] = useState("");
   const [comment, setComment] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [updated, setUpdated] = useState(false);
+  // const [updated, setUpdated] = useState(false);
+
+  // const {
+  //   isLoading,
+  //   posts: postData,
+  //   error,
+  // } = useSelector((state) => state.posts);
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (Array.isArray(userData)) {
@@ -40,15 +52,22 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
     setDateTime(formattedDate);
   }, [post]);
 
+  // Get all posts
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${loggedUser?.id}`)
-      .then((res) => {
-        setPostData(res.data);
-        setUpdated(false);
-      })
-      .catch((error) => console.log(error.message));
-  }, [updated]);
+    if (loggedUser?.id) {
+      dispatch(fetchPosts(loggedUser.id));
+    }
+  }, [dispatch, loggedUser?.id]);
+
+  // useEffect(() => {
+  //   axios
+  //     .get(`${import.meta.env.VITE_BASE_URL}/posts?user_id=${loggedUser?.id}`)
+  //     .then((res) => {
+  //       setPostData(res.data);
+  //       setUpdated(false);
+  //     })
+  //     .catch((error) => console.log(error.message));
+  // }, [updated]);
 
   const handleComment = () => {
     setComment(!comment);
@@ -78,17 +97,7 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
     const data = { user_id: user?.id, description: textBox };
 
     if (user) {
-      axios
-        .patch(`${import.meta.env.VITE_BASE_URL}/posts/${post.id}`, data)
-        .then((res) => {
-          const remainingData = postData.filter((data) => post.id !== data.id);
-          const updatedData = [res.data, ...remainingData];
-          post.description = res.data.description;
-          setPostData(updatedData);
-          setUpdated(true);
-          setEdit(!edit);
-        })
-        .catch((error) => console.log(error.message));
+      dispatch(updatePost({ postId: post.id, updatedData: data }))
     } else {
       toast.error("Please Login To Post");
     }
@@ -106,16 +115,20 @@ const PostCard = ({ post, userData, handleDelete, handleLike, like }) => {
     };
 
     if (user) {
-      axios
-        .post(`${import.meta.env.VITE_BASE_URL}/comments`, data)
-        .then((res) => {
-          const updatedData = [...post.comments, res.data];
-          post.comments = updatedData;
-          const remaining = postData.filter((data) => post.id !== data.id);
-          setPostData([...remaining, post]);
-          setComment(!comment);
-        })
-        .catch((error) => console.log(error.message));
+      dispatch(createComment(data))
+      .then(() => {
+        dispatch(fetchPosts(loggedUser.id))
+      })
+      // axios
+      //   .post(`${import.meta.env.VITE_BASE_URL}/comments`, data)
+      //   .then((res) => {
+      //     const updatedData = [...post.comments, res.data];
+      //     post.comments = updatedData;
+      //     const remaining = postData.filter((data) => post.id !== data.id);
+      //     setPostData([...remaining, post]);
+      //     setComment(!comment);
+      //   })
+      //   .catch((error) => console.log(error.message));
     } else {
       toast.error("Please Login To Comment");
     }

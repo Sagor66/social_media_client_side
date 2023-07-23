@@ -24,7 +24,7 @@ const Timeline = () => {
   return (
     <div className="my-32 py-10">
       {userPost.map((post) => (
-        <PostCard post={post} userData={user}></PostCard>
+        <PostCard key={post.id} post={post} userData={user}></PostCard>
       ))}
     </div>
   );

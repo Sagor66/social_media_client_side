@@ -1,0 +1,35 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+// Create Posts
+export const createCommentReaction = createAsyncThunk("commentReactions/createCommentReaction", async (newPostData) => {
+    const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/comment_reactions`, newPostData);
+    return res.data;
+  });
+
+export const commentReactionSlice = createSlice({
+  name: "commentReactions",
+  initialState: {
+    isLoading: false,
+    commentReactions: [],
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    // Creating
+    builder.addCase(createCommentReaction.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(createCommentReaction.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.commentReactions.push(action.payload);
+      state.error = null;
+    });
+    builder.addCase(createCommentReaction.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.error.message;
+    });
+  },
+});
+
+export default commentReactionSlice.reducer;
